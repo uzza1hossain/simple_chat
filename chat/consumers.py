@@ -1,15 +1,16 @@
-from email import message
 import json
-from channels.generic.websocket import WebsocketConsumer
+from email import message
+
 from asgiref.sync import async_to_sync
+from channels.generic.websocket import WebsocketConsumer
+
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
-        self.room_group_name = 'test'
+        self.room_group_name = "test"
 
         async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name,
-            self.channel_name
+            self.room_group_name, self.channel_name
         )
 
         self.accept()
@@ -20,17 +21,12 @@ class ChatConsumer(WebsocketConsumer):
         #     )
         # )
 
-
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        
+        message = text_data_json["message"]
+
         async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
-                'type':'chat_message',
-                'message':message
-            }
+            self.room_group_name, {"type": "chat_message", "message": message}
         )
 
         # self.send(text_data=json.dumps({
@@ -39,8 +35,5 @@ class ChatConsumer(WebsocketConsumer):
         # }))
 
     def chat_message(self, event):
-        message = event['message']
-        self.send(text_data=json.dumps({
-            'type':'chat',
-            'message':message
-        }))
+        message = event["message"]
+        self.send(text_data=json.dumps({"type": "chat", "message": message}))
